@@ -219,11 +219,13 @@ static void page_items(struct menu *menu) {
 			page->first = item;
 
 			int total_width = 0;
+			int items = 0;
 			while (item) {
 				total_width += item->width + 2 * menu->padding;
-				if (total_width > max_width) {
+				if (total_width > max_width && items > 0) {
 					break;
 				}
+				items++;
 
 				item->page = page;
 				page->last = item;

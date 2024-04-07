@@ -4,6 +4,7 @@
 #include <xkbcommon/xkbcommon.h>
 
 #include "pool-buffer.h"
+#include "xdg-activation-v1-client-protocol.h"
 
 // A menu item.
 struct item {
@@ -55,6 +56,8 @@ struct menu {
 	int (*strncmp)(const char *, const char *, size_t);
 	// Whether the input is a password
 	bool passwd;
+	// Whether to execute the selected item
+	bool exec;
 	// The font used to display the menu
 	char *font;
 	// The number of lines to list items vertically
@@ -78,6 +81,7 @@ struct menu {
 	struct wl_data_device_manager *data_device_manager;
 	struct zwlr_layer_shell_v1 *layer_shell;
 	struct output *output_list;
+	struct xdg_activation_v1 *activation;
 
 	struct keyboard *keyboard;
 	struct wl_data_device *data_device;

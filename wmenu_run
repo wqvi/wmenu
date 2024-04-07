@@ -32,4 +32,4 @@ path() {
 	fi
 }
 
-path | wmenu "$@" | ${SHELL:-"/bin/sh"} &
+path | wmenu -x "$@"

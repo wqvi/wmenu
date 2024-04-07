@@ -18,6 +18,7 @@
 
 #include "menu.h"
 #include "render.h"
+#include "xdg-activation-v1-client-protocol.h"
 #include "wlr-layer-shell-unstable-v1-client-protocol.h"
 
 static void noop() {
@@ -203,6 +204,8 @@ static void handle_global(void *data, struct wl_registry *registry,
 		wl_output_set_user_data(wl_output, output);
 		wl_output_add_listener(wl_output, &output_listener, output);
 		menu_add_output(menu, output);
+	} else if (strcmp(interface, xdg_activation_v1_interface.name) == 0) {
+		menu->activation = wl_registry_bind(registry, name, &xdg_activation_v1_interface, 1);
 	}
 }
 
@@ -227,6 +230,7 @@ static void menu_connect(struct menu *menu) {
 	assert(menu->seat != NULL);
 	assert(menu->data_device_manager != NULL);
 	assert(menu->layer_shell != NULL);
+	assert(menu->activation != NULL);
 	menu->registry = registry;
 
 	// Get data device for seat

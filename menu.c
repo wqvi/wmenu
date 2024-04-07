@@ -21,6 +21,7 @@
 #include "pango.h"
 #include "pool-buffer.h"
 #include "render.h"
+#include "xdg-activation-v1-client-protocol.h"
 #include "wlr-layer-shell-unstable-v1-client-protocol.h"
 
 // Creates and returns a new menu.
@@ -89,11 +90,11 @@ static bool parse_color(const char *color, uint32_t *result) {
 // Parse menu options from command line arguments.
 void menu_getopts(struct menu *menu, int argc, char *argv[]) {
 	const char *usage =
-		"Usage: wmenu [-biPv] [-f font] [-l lines] [-o output] [-p prompt]\n"
+		"Usage: wmenu [-biPvx] [-f font] [-l lines] [-o output] [-p prompt]\n"
 		"\t[-N color] [-n color] [-M color] [-m color] [-S color] [-s color]\n";
 
 	int opt;
-	while ((opt = getopt(argc, argv, "bhiPvf:l:o:p:N:n:M:m:S:s:")) != -1) {
+	while ((opt = getopt(argc, argv, "bhiPvxf:l:o:p:N:n:M:m:S:s:")) != -1) {
 		switch (opt) {
 		case 'b':
 			menu->bottom = true;
@@ -107,6 +108,9 @@ void menu_getopts(struct menu *menu, int argc, char *argv[]) {
 		case 'v':
 			puts("wmenu " VERSION);
 			exit(EXIT_SUCCESS);
+		case 'x':
+			menu->exec = true;
+			break;
 		case 'f':
 			menu->font = optarg;
 			break;
@@ -409,6 +413,53 @@ static void movewordedge(struct menu *menu, int dir) {
 	}
 }
 
+// Information needed to execute an item.
+struct executable {
+	struct menu *menu;
+	char *name;
+};
+
+// Executes an item with an activation token.
+static void execute(struct executable *exe, const char *token) {
+	menu_destroy(exe->menu);
+
+	setenv("XDG_ACTIVATION_TOKEN", token, true);
+	execlp(exe->name, exe->name, NULL);
+
+	// Handle execution failure
+	fprintf(stderr, "Failed to execute selection: %s\n", strerror(errno));
+	free(exe->name);
+	free(exe);
+	exit(EXIT_FAILURE);
+}
+
+static void activation_token_done(void *data, struct xdg_activation_token_v1 *activation_token,
+	const char *token) {
+	struct executable *exe = data;
+	xdg_activation_token_v1_destroy(activation_token);
+	execute(exe, token);
+}
+
+static const struct xdg_activation_token_v1_listener activation_token_listener = {
+	.done = activation_token_done,
+};
+
+// Executes the selected item.
+static void menu_exec(struct menu *menu) {
+	if (!menu->sel) {
+		return;
+	}
+
+	struct executable *exe = calloc(1, sizeof(struct executable));
+	exe->menu = menu;
+	exe->name = strdup(menu->sel->text);
+
+	struct xdg_activation_token_v1 *activation_token = xdg_activation_v1_get_activation_token(menu->activation);
+	xdg_activation_token_v1_set_surface(activation_token, menu->surface);
+	xdg_activation_token_v1_add_listener(activation_token, &activation_token_listener, exe);
+	xdg_activation_token_v1_commit(activation_token);
+}
+
 // Handle a keypress.
 void menu_keypress(struct menu *menu, enum wl_keyboard_key_state key_state,
 		xkb_keysym_t sym) {
@@ -588,6 +639,8 @@ void menu_keypress(struct menu *menu, enum wl_keyboard_key_state key_state,
 			puts(menu->input);
 			fflush(stdout);
 			menu->exit = true;
+		} else if (menu->exec) {
+			menu_exec(menu);
 		} else {
 			char *text = menu->sel ? menu->sel->text : menu->input;
 			puts(text);
@@ -750,6 +803,7 @@ void menu_destroy(struct menu *menu) {
 	wl_data_device_destroy(menu->data_device);
 	wl_surface_destroy(menu->surface);
 	zwlr_layer_surface_v1_destroy(menu->layer_surface);
+	xdg_activation_v1_destroy(menu->activation);
 
 	free_pages(menu);
 	free_items(menu);

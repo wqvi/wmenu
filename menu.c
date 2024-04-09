@@ -165,7 +165,7 @@ void menu_getopts(struct menu *menu, int argc, char *argv[]) {
 	}
 
 	int height = get_font_height(menu->font);
-	menu->line_height = height + 3;
+	menu->line_height = height + 2;
 	menu->height = menu->line_height;
 	if (menu->lines > 0) {
 		menu->height += menu->height * menu->lines;

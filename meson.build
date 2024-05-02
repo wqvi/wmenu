@@ -43,6 +43,7 @@ executable(
 		'pango.c',
 		'pool-buffer.c',
 		'render.c',
+		'wayland.c',
 	),
 	dependencies: [
 		cairo,

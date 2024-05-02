@@ -7,6 +7,7 @@
 
 #include "menu.h"
 #include "pango.h"
+#include "wayland.h"
 
 // Calculate text widths.
 void calc_widths(struct menu *menu) {
@@ -177,6 +178,8 @@ static void render_to_cairo(struct menu *menu, cairo_t *cairo) {
 
 // Renders a single frame of the menu.
 void render_menu(struct menu *menu) {
+	struct wl_context *context = menu->context;
+
 	cairo_surface_t *recorder = cairo_recording_surface_create(
 			CAIRO_CONTENT_COLOR_ALPHA, NULL);
 	cairo_t *cairo = cairo_create(recorder);
@@ -191,8 +194,8 @@ void render_menu(struct menu *menu) {
 
 	render_to_cairo(menu, cairo);
 
-	int scale = menu->output ? menu->output->scale : 1;
-	menu->current = get_next_buffer(menu->shm,
+	int scale = context_get_scale(context);
+	menu->current = get_next_buffer(context_get_shm(context),
 		menu->buffers, menu->width, menu->height, scale);
 	if (!menu->current) {
 		goto cleanup;
@@ -206,10 +209,11 @@ void render_menu(struct menu *menu) {
 	cairo_set_source_surface(shm, recorder, 0, 0);
 	cairo_paint(shm);
 
-	wl_surface_set_buffer_scale(menu->surface, scale);
-	wl_surface_attach(menu->surface, menu->current->buffer, 0, 0);
-	wl_surface_damage(menu->surface, 0, 0, menu->width, menu->height);
-	wl_surface_commit(menu->surface);
+	struct wl_surface *surface = context_get_surface(context);
+	wl_surface_set_buffer_scale(surface, scale);
+	wl_surface_attach(surface, menu->current->buffer, 0, 0);
+	wl_surface_damage(surface, 0, 0, menu->width, menu->height);
+	wl_surface_commit(surface);
 
 cleanup:
 	cairo_destroy(cairo);

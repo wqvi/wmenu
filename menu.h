@@ -4,7 +4,6 @@
 #include <xkbcommon/xkbcommon.h>
 
 #include "pool-buffer.h"
-#include "xdg-activation-v1-client-protocol.h"
 
 // A menu item.
 struct item {
@@ -22,30 +21,6 @@ struct page {
 	struct item *last;  // last item in the page
 	struct page *prev;  // previous page
 	struct page *next;  // next page
-};
-
-// A Wayland output.
-struct output {
-	struct menu *menu;
-	struct wl_output *output;
-	const char *name;    // output name
-	int32_t scale;       // output scale
-	struct output *next; // next output
-};
-
-// Keyboard state.
-struct keyboard {
-	struct menu *menu;
-	struct wl_keyboard *keyboard;
-	struct xkb_context *context;
-	struct xkb_keymap *keymap;
-	struct xkb_state *state;
-
-	int repeat_timer;
-	int repeat_delay;
-	int repeat_period;
-	enum wl_keyboard_key_state repeat_key_state;
-	xkb_keysym_t repeat_sym;
 };
 
 // Menu state.
@@ -71,22 +46,7 @@ struct menu {
 	// Selection colors
 	uint32_t selectionbg, selectionfg;
 
-	struct wl_display *display;
-	struct wl_registry *registry;
-	struct wl_compositor *compositor;
-	struct wl_shm *shm;
-	struct wl_seat *seat;
-	struct wl_data_device_manager *data_device_manager;
-	struct zwlr_layer_shell_v1 *layer_shell;
-	struct output *output_list;
-	struct xdg_activation_v1 *activation;
-
-	struct keyboard *keyboard;
-	struct wl_data_device *data_device;
-	struct wl_surface *surface;
-	struct zwlr_layer_surface_v1 *layer_surface;
-	struct wl_data_offer *data_offer;
-	struct output *output;
+	struct wl_context *context;
 
 	struct pool_buffer buffers[2];
 	struct pool_buffer *current;
@@ -104,6 +64,7 @@ struct menu {
 	size_t cursor;
 
 	struct item *items;       // list of all items
+	struct item *lastitem;    // last item in the list
 	struct item *matches;     // list of matching items
 	struct item *matches_end; // last matching item
 	struct item *sel;         // selected item
@@ -114,12 +75,10 @@ struct menu {
 };
 
 struct menu *menu_create();
-struct keyboard *keyboard_create(struct menu *menu, struct wl_keyboard *wl_keyboard);
-void menu_set_keyboard(struct menu *menu, struct keyboard *keyboard);
-struct output *output_create(struct menu *menu, struct wl_output *wl_output);
-void menu_add_output(struct menu *menu, struct output *output);
 void menu_getopts(struct menu *menu, int argc, char *argv[]);
-void read_menu_items(struct menu *menu);
+void menu_add_item(struct menu *menu, char *text);
+void menu_process_items(struct menu *menu);
+void menu_paste(struct menu *menu, const char *text, ssize_t len);
 void menu_keypress(struct menu *menu, enum wl_keyboard_key_state key_state,
 		xkb_keysym_t sym);
 void menu_destroy(struct menu *menu);

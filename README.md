@@ -27,7 +27,7 @@ See wmenu(1)
 To use wmenu with Sway, you can add the following to your configuration file:
 
 ```
-set $menu wmenu_run
+set $menu dmenu_path | wmenu | xargs swaymsg exec --
 bindsym $mod+d exec $menu
 ```
 

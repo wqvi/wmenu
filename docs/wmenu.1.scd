@@ -6,7 +6,7 @@ wmenu - dynamic menu for Wayland
 
 # SYNOPSIS
 
-*wmenu* [-biPvx] \
+*wmenu* [-biPv] \
   [-f _font_] \
   [-l _lines_] \
   [-o _output_] \
@@ -36,9 +36,6 @@ to those matching the tokens in the input.
 
 *-v*
 	prints version information to stdout, then exits.
-
-*-x*
-	wmenu will execute the selected item.
 
 *-f* _font_
 	defines the font used. For more information, see

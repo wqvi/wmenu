@@ -56,8 +56,6 @@ struct menu {
 	int (*strncmp)(const char *, const char *, size_t);
 	// Whether the input is a password
 	bool passwd;
-	// Whether to execute the selected item
-	bool exec;
 	// The font used to display the menu
 	char *font;
 	// The number of lines to list items vertically

@@ -1,9 +1,10 @@
 #ifndef WMENU_MENU_H
 #define WMENU_MENU_H
 
+#include <stdbool.h>
+#include <sys/types.h>
 #include <xkbcommon/xkbcommon.h>
-
-#include "pool-buffer.h"
+#include <wayland-client.h>
 
 // A menu item.
 struct item {
@@ -48,9 +49,6 @@ struct menu {
 
 	struct wl_context *context;
 
-	struct pool_buffer buffers[2];
-	struct pool_buffer *current;
-
 	int width;
 	int height;
 	int line_height;
@@ -77,7 +75,7 @@ struct menu {
 struct menu *menu_create();
 void menu_getopts(struct menu *menu, int argc, char *argv[]);
 void menu_add_item(struct menu *menu, char *text);
-void menu_process_items(struct menu *menu);
+void menu_render_items(struct menu *menu);
 void menu_paste(struct menu *menu, const char *text, ssize_t len);
 void menu_keypress(struct menu *menu, enum wl_keyboard_key_state key_state,
 		xkb_keysym_t sym);

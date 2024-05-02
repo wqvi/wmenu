@@ -1,5 +1,7 @@
 #define _POSIX_C_SOURCE 200809L
 
+#include <string.h>
+
 #include "menu.h"
 #include "wayland.h"
 
@@ -20,5 +22,7 @@ int main(int argc, char *argv[]) {
 	if (!menu->passwd) {
 		read_items(menu);
 	}
-	return menu_run(menu);
+	int status = menu_run(menu);
+	menu_destroy(menu);
+	return status;
 }

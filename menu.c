@@ -320,10 +320,12 @@ static void match_items(struct menu *menu) {
 	}
 }
 
-// Process menu items.
-void menu_process_items(struct menu *menu) {
+// Render menu items.
+void menu_render_items(struct menu *menu) {
+	render_menu(menu);
 	calc_widths(menu);
 	match_items(menu);
+	render_menu(menu);
 }
 
 static void insert(struct menu *menu, const char *text, ssize_t len) {
@@ -659,7 +661,5 @@ static void free_items(struct menu *menu) {
 void menu_destroy(struct menu *menu) {
 	free_pages(menu);
 	free_items(menu);
-
-	destroy_buffer(&menu->buffers[0]);
-	destroy_buffer(&menu->buffers[1]);
+	free(menu);
 }

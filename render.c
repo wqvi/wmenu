@@ -7,11 +7,14 @@
 
 #include "menu.h"
 #include "pango.h"
+#include "pool-buffer.h"
 #include "wayland.h"
 
 // Calculate text widths.
 void calc_widths(struct menu *menu) {
-	cairo_t *cairo = menu->current->cairo;
+	struct wl_context *context = menu->context;
+	struct pool_buffer *current = context_get_current_buffer(context);
+	cairo_t *cairo = current->cairo;
 
 	// Calculate prompt width
 	if (menu->prompt) {
@@ -195,13 +198,12 @@ void render_menu(struct menu *menu) {
 	render_to_cairo(menu, cairo);
 
 	int scale = context_get_scale(context);
-	menu->current = get_next_buffer(context_get_shm(context),
-		menu->buffers, menu->width, menu->height, scale);
-	if (!menu->current) {
+	struct pool_buffer *buffer = context_get_next_buffer(context, scale);
+	if (!buffer) {
 		goto cleanup;
 	}
 
-	cairo_t *shm = menu->current->cairo;
+	cairo_t *shm = buffer->cairo;
 	cairo_save(shm);
 	cairo_set_operator(shm, CAIRO_OPERATOR_CLEAR);
 	cairo_paint(shm);
@@ -211,7 +213,7 @@ void render_menu(struct menu *menu) {
 
 	struct wl_surface *surface = context_get_surface(context);
 	wl_surface_set_buffer_scale(surface, scale);
-	wl_surface_attach(surface, menu->current->buffer, 0, 0);
+	wl_surface_attach(surface, buffer->buffer, 0, 0);
 	wl_surface_damage(surface, 0, 0, menu->width, menu->height);
 	wl_surface_commit(surface);
 

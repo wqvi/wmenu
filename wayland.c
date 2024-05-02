@@ -17,7 +17,7 @@
 #include <xkbcommon/xkbcommon.h>
 
 #include "menu.h"
-#include "render.h"
+#include "pool-buffer.h"
 #include "wayland.h"
 #include "xdg-activation-v1-client-protocol.h"
 #include "wlr-layer-shell-unstable-v1-client-protocol.h"
@@ -96,6 +96,9 @@ struct wl_context {
 	struct zwlr_layer_surface_v1 *layer_surface;
 	struct wl_data_offer *data_offer;
 	struct output *output;
+
+	struct pool_buffer buffers[2];
+	struct pool_buffer *current;
 };
 
 // Returns the current output_scale.
@@ -103,9 +106,16 @@ int context_get_scale(struct wl_context *context) {
 	return context->output ? context->output->scale : 1;
 }
 
-// Returns the shared memory for the context.
-struct wl_shm *context_get_shm(struct wl_context *context) {
-	return context->shm;
+// Returns the current buffer from the pool.
+struct pool_buffer *context_get_current_buffer(struct wl_context *context) {
+	return context->current;
+}
+
+// Returns the next buffer from the pool.
+struct pool_buffer *context_get_next_buffer(struct wl_context *context, int scale) {
+	struct menu *menu = context->menu;
+	context->current = get_next_buffer(context->shm, context->buffers, menu->width, menu->height, scale);
+	return context->current;
 }
 
 // Returns the Wayland surface for the context.
@@ -446,9 +456,7 @@ int menu_run(struct menu *menu) {
 
 	wl_surface_commit(context->surface);
 	wl_display_roundtrip(context->display);
-	render_menu(menu);
-	menu_process_items(menu);
-	render_menu(menu);
+	menu_render_items(menu);
 
 	struct pollfd fds[] = {
 		{ wl_display_get_fd(context->display), POLLIN },
@@ -482,8 +490,8 @@ int menu_run(struct menu *menu) {
 	}
 
 	bool failure = menu->failure;
-	menu_destroy(menu);
 	context_destroy(context);
+	menu->context = NULL;
 
 	if (failure) {
 		return EXIT_FAILURE;

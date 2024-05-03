@@ -38,12 +38,35 @@ install_data('wmenu_run', install_dir: get_option('bindir'))
 executable(
 	'wmenu',
 	files(
-		'main.c',
 		'menu.c',
 		'pango.c',
 		'pool-buffer.c',
 		'render.c',
 		'wayland.c',
+		'wmenu.c',
+	),
+	dependencies: [
+		cairo,
+		client_protos,
+		pango,
+		pangocairo,
+		rt,
+		wayland_client,
+		wayland_protos,
+		xkbcommon,
+	],
+	install: true,
+)
+
+executable(
+	'wmenu-run',
+	files(
+		'menu.c',
+		'pango.c',
+		'pool-buffer.c',
+		'render.c',
+		'wayland.c',
+		'wmenu-run.c',
 	),
 	dependencies: [
 		cairo,

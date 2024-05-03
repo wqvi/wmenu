@@ -68,6 +68,7 @@ struct menu {
 	struct item *sel;         // selected item
 	struct page *pages;       // list of pages
 
+	void (*callback)(struct menu *menu);
 	bool exit;
 	bool failure;
 };

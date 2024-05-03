@@ -128,6 +128,11 @@ struct xkb_state *context_get_xkb_state(struct wl_context *context) {
 	return context->keyboard->state;
 }
 
+// Returns the XDG activation object for the context.
+struct xdg_activation_v1 *context_get_xdg_activation(struct wl_context *context) {
+	return context->activation;
+}
+
 // Retrieves pasted text from a Wayland data offer.
 bool context_paste(struct wl_context *context) {
 	if (!context->data_offer) {

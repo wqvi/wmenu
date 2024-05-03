@@ -529,6 +529,8 @@ void menu_keypress(struct menu *menu, enum wl_keyboard_key_state key_state,
 			puts(menu->input);
 			fflush(stdout);
 			menu->exit = true;
+		} else if (menu->callback) {
+			menu->callback(menu);
 		} else {
 			char *text = menu->sel ? menu->sel->text : menu->input;
 			puts(text);

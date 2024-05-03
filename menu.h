@@ -74,12 +74,12 @@ struct menu {
 };
 
 struct menu *menu_create();
+void menu_destroy(struct menu *menu);
 void menu_getopts(struct menu *menu, int argc, char *argv[]);
-void menu_add_item(struct menu *menu, char *text);
+void menu_add_item(struct menu *menu, char *text, bool sort);
 void menu_render_items(struct menu *menu);
 void menu_paste(struct menu *menu, const char *text, ssize_t len);
 void menu_keypress(struct menu *menu, enum wl_keyboard_key_state key_state,
 		xkb_keysym_t sym);
-void menu_destroy(struct menu *menu);
 
 #endif

@@ -1,4 +1,5 @@
 #define _POSIX_C_SOURCE 200809L
+#include <dirent.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,13 +10,19 @@
 #include "xdg-activation-v1-client-protocol.h"
 
 static void read_items(struct menu *menu) {
-	char buf[sizeof menu->input];
-	while (fgets(buf, sizeof buf, stdin)) {
-		char *p = strchr(buf, '\n');
-		if (p) {
-			*p = '\0';
+	char *path = getenv("PATH");
+	for (char *p = strtok(path, ":"); p != NULL; p = strtok(NULL, ":")) {
+		DIR *dir = opendir(p);
+		if (dir == NULL) {
+			continue;
 		}
-		menu_add_item(menu, strdup(buf));
+		for (struct dirent *ent = readdir(dir); ent != NULL; ent = readdir(dir)) {
+			if (ent->d_name[0] == '.') {
+				continue;
+			}
+			menu_add_item(menu, strdup(ent->d_name), true);
+		}
+		closedir(dir);
 	}
 }
 

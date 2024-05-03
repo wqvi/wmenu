@@ -35,6 +35,36 @@ struct menu *menu_create() {
 	return menu;
 }
 
+static void free_pages(struct menu *menu) {
+	struct page *next = menu->pages;
+	while (next) {
+		struct page *page = next;
+		next = page->next;
+		free(page);
+	}
+}
+
+static void free_item(struct item *item) {
+	free(item->text);
+	free(item);
+}
+
+static void free_items(struct menu *menu) {
+	struct item *next = menu->items;
+	while (next) {
+		struct item *item = next;
+		next = item->next;
+		free_item(item);
+	}
+}
+
+// Destroys the menu, freeing memory associated with it.
+void menu_destroy(struct menu *menu) {
+	free_pages(menu);
+	free_items(menu);
+	free(menu);
+}
+
 static bool parse_color(const char *color, uint32_t *result) {
 	if (color[0] == '#') {
 		++color;
@@ -136,19 +166,34 @@ void menu_getopts(struct menu *menu, int argc, char *argv[]) {
 }
 
 // Add an item to the menu.
-void menu_add_item(struct menu *menu, char *text) {
-	struct item *item = calloc(1, sizeof *item);
-	if (!item) {
+void menu_add_item(struct menu *menu, char *text, bool sort) {
+	struct item *new = calloc(1, sizeof(struct item));
+	if (!new) {
 		return;
 	}
-	item->text = text;
+	new->text = text;
+
+	if (sort) {
+		for (struct item **item = &menu->items; *item; item = &(*item)->next) {
+			int result = strcmp(new->text, (*item)->text);
+			if (result == 0) {
+				free_item(new);
+				return;
+			}
+			if (result < 0) {
+				new->next = *item;
+				*item = new;
+				return;
+			}
+		}
+	}
 
 	if (menu->lastitem) {
-		menu->lastitem->next = item;
+		menu->lastitem->next = new;
 	} else {
-		menu->items = item;
+		menu->items = new;
 	}
-	menu->lastitem = item;
+	menu->lastitem = new;
 }
 
 static void append_page(struct page *page, struct page **first, struct page **last) {
@@ -636,32 +681,4 @@ void menu_keypress(struct menu *menu, enum wl_keyboard_key_state key_state,
 			render_menu(menu);
 		}
 	}
-}
-
-// Frees menu pages.
-static void free_pages(struct menu *menu) {
-	struct page *next = menu->pages;
-	while (next) {
-		struct page *page = next;
-		next = page->next;
-		free(page);
-	}
-}
-
-// Frees menu items.
-static void free_items(struct menu *menu) {
-	struct item *next = menu->items;
-	while (next) {
-		struct item *item = next;
-		next = item->next;
-		free(item->text);
-		free(item);
-	}
-}
-
-// Destroys the menu, freeing memory associated with it.
-void menu_destroy(struct menu *menu) {
-	free_pages(menu);
-	free_items(menu);
-	free(menu);
 }

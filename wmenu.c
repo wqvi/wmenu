@@ -12,7 +12,7 @@ static void read_items(struct menu *menu) {
 		if (p) {
 			*p = '\0';
 		}
-		menu_add_item(menu, strdup(buf));
+		menu_add_item(menu, strdup(buf), false);
 	}
 }
 

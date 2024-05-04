@@ -1,4 +1,4 @@
-wmenu(1)
+WMENU(1)
 
 # NAME
 
@@ -15,12 +15,17 @@ wmenu - dynamic menu for Wayland
   [-M _color_] [-m _color_] \
   [-S _color_] [-s _color_]
 
+*wmenu-run* ...
+
 # DESCRIPTION
 
-wmenu is a dynamic menu for Wayland, which reads a list of newline-separated
+*wmenu* is a dynamic menu for Wayland, which reads a list of newline-separated
 items from stdin. When the user selects an item and presses Return, their choice
 is printed to stdout and wmenu terminates. Entering text will narrow the items
 to those matching the tokens in the input.
+
+*wmenu-run* is a special invocation of wmenu which lists programs in the user's
+$PATH and runs the result.
 
 # OPTIONS
 

@@ -37,7 +37,7 @@ $PATH and runs the result.
 
 *-P*
 	wmenu will not directly display the keyboard input, but instead replace it
-	with asterisks. All data from stdin will be ignored.
+	with asterisks.
 
 *-v*
 	prints version information to stdout, then exits.

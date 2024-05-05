@@ -89,16 +89,13 @@ void menu_getopts(struct menu *menu, int argc, char *argv[]) {
 		"\t[-N color] [-n color] [-M color] [-m color] [-S color] [-s color]\n";
 
 	int opt;
-	while ((opt = getopt(argc, argv, "bhiPvf:l:o:p:N:n:M:m:S:s:")) != -1) {
+	while ((opt = getopt(argc, argv, "bhivf:l:o:p:N:n:M:m:S:s:")) != -1) {
 		switch (opt) {
 		case 'b':
 			menu->bottom = true;
 			break;
 		case 'i':
 			menu->strncmp = strncasecmp;
-			break;
-		case 'P':
-			menu->passwd = true;
 			break;
 		case 'v':
 			puts("wmenu " VERSION);

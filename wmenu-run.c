@@ -39,7 +39,8 @@ static void activation_token_done(void *data, struct xdg_activation_token_v1 *ac
 	menu_destroy(exe->menu);
 
 	setenv("XDG_ACTIVATION_TOKEN", token, true);
-	execlp(exe->name, exe->name, NULL);
+	char* cmd[] = {"/bin/sh", "-c", exe->name, NULL};
+	execvp(cmd[0], (char**)cmd);
 
 	fprintf(stderr, "Failed to execute selection: %s\n", strerror(errno));
 	free(exe->name);
@@ -52,13 +53,9 @@ static const struct xdg_activation_token_v1_listener activation_token_listener =
 };
 
 static void exec(struct menu *menu) {
-	if (!menu->sel) {
-		return;
-	}
-
 	struct executable *exe = calloc(1, sizeof(struct executable));
 	exe->menu = menu;
-	exe->name = strdup(menu->sel->text);
+	exe->name = strdup(menu->input);
 
 	struct xdg_activation_v1 *activation = context_get_xdg_activation(menu->context);
 	struct xdg_activation_token_v1 *activation_token = xdg_activation_v1_get_activation_token(activation);

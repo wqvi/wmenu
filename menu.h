@@ -6,6 +6,9 @@
 #include <xkbcommon/xkbcommon.h>
 #include <wayland-client.h>
 
+struct menu;
+typedef void (*menu_callback)(struct menu *menu, char *text, bool exit);
+
 // A menu item.
 struct item {
 	char *text;
@@ -68,12 +71,12 @@ struct menu {
 	struct item *sel;         // selected item
 	struct page *pages;       // list of pages
 
-	void (*callback)(struct menu *menu);
+	menu_callback callback;
 	bool exit;
 	bool failure;
 };
 
-struct menu *menu_create();
+struct menu *menu_create(menu_callback callback);
 void menu_destroy(struct menu *menu);
 void menu_getopts(struct menu *menu, int argc, char *argv[]);
 void menu_add_item(struct menu *menu, char *text, bool sort);

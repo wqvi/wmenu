@@ -1,5 +1,6 @@
 #define _POSIX_C_SOURCE 200809L
 
+#include <stdio.h>
 #include <string.h>
 
 #include "menu.h"
@@ -16,8 +17,16 @@ static void read_items(struct menu *menu) {
 	}
 }
 
+static void print_item(struct menu *menu, char *text, bool exit) {
+	puts(text);
+	fflush(stdout);
+	if (exit) {
+		menu->exit = true;
+	}
+}
+
 int main(int argc, char *argv[]) {
-	struct menu *menu = menu_create();
+	struct menu *menu = menu_create(print_item);
 	menu_getopts(menu, argc, argv);
 	read_items(menu);
 	int status = menu_run(menu);

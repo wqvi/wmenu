@@ -494,11 +494,10 @@ int menu_run(struct menu *menu) {
 		}
 	}
 
-	bool failure = menu->failure;
 	context_destroy(context);
 	menu->context = NULL;
 
-	if (failure) {
+	if (menu->failure) {
 		return EXIT_FAILURE;
 	}
 	return EXIT_SUCCESS;

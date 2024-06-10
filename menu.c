@@ -22,7 +22,7 @@
 #include "wayland.h"
 
 // Creates and returns a new menu.
-struct menu *menu_create() {
+struct menu *menu_create(menu_callback callback) {
 	struct menu *menu = calloc(1, sizeof(struct menu));
 	menu->strncmp = strncmp;
 	menu->font = "monospace 10";
@@ -32,6 +32,7 @@ struct menu *menu_create() {
 	menu->promptfg = 0xeeeeeeff;
 	menu->selectionbg = 0x005577ff;
 	menu->selectionfg = 0xeeeeeeff;
+	menu->callback = callback;
 	return menu;
 }
 
@@ -571,18 +572,10 @@ void menu_keypress(struct menu *menu, enum wl_keyboard_key_state key_state,
 	case XKB_KEY_Return:
 	case XKB_KEY_KP_Enter:
 		if (shift) {
-			puts(menu->input);
-			fflush(stdout);
-			menu->exit = true;
-		} else if (menu->callback) {
-			menu->callback(menu);
+			menu->callback(menu, menu->input, true);
 		} else {
 			char *text = menu->sel ? menu->sel->text : menu->input;
-			puts(text);
-			fflush(stdout);
-			if (!ctrl) {
-				menu->exit = true;
-			}
+			menu->callback(menu, text, !ctrl);
 		}
 		break;
 	case XKB_KEY_Left:

@@ -1,7 +1,7 @@
 project(
 	'wmenu',
 	'c',
-	version: '0.1.8',
+	version: '0.1.9',
 	license: 'MIT',
 	default_options: [
 		'c_std=c11',

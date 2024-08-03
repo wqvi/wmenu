@@ -439,7 +439,7 @@ int menu_run(struct menu *menu) {
 		context->layer_shell,
 		context->surface,
 		context->output ? context->output->output : NULL,
-		ZWLR_LAYER_SHELL_V1_LAYER_TOP,
+		ZWLR_LAYER_SHELL_V1_LAYER_OVERLAY,
 		"menu"
 	);
 	assert(layer_surface != NULL);

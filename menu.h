@@ -74,6 +74,9 @@ struct menu {
 	menu_callback callback;
 	bool exit;
 	bool failure;
+
+	int epollfd;
+	int event_amount;
 };
 
 struct menu *menu_create(menu_callback callback);

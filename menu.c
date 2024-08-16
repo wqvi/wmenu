@@ -33,6 +33,7 @@ struct menu *menu_create(menu_callback callback) {
 	menu->selectionbg = 0x005577ff;
 	menu->selectionfg = 0xeeeeeeff;
 	menu->callback = callback;
+	menu->event_amount = 2;
 	return menu;
 }
 

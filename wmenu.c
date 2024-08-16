@@ -1,7 +1,10 @@
 #define _POSIX_C_SOURCE 200809L
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 #include "menu.h"
 #include "wayland.h"
@@ -26,8 +29,15 @@ static void print_item(struct menu *menu, char *text, bool exit) {
 }
 
 int main(int argc, char *argv[]) {
+	int flags = fcntl(STDIN_FILENO, F_GETFL);
+	flags |= O_NONBLOCK;
+	if (fcntl(STDIN_FILENO, F_SETFL, flags) < 0) {
+		return EXIT_FAILURE;
+	}
+
 	struct menu *menu = menu_create(print_item);
 	menu_getopts(menu, argc, argv);
+	menu->event_amount = 3;
 	read_items(menu);
 	int status = menu_run(menu);
 	menu_destroy(menu);

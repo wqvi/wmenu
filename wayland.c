@@ -394,6 +394,19 @@ static const struct wl_registry_listener registry_listener = {
 	.global_remove = noop,
 };
 
+static void read_items(struct menu *menu) {
+	char buf[sizeof menu->input];
+	while (fgets(buf, sizeof buf, stdin)) {
+		char *p = strchr(buf, '\n');
+		if (p) {
+			*p = '\0';
+		}
+		menu_add_item(menu, strdup(buf), false);
+	}
+
+	menu_render_items(menu);
+}
+
 // Connect to the Wayland display and run the menu.
 int menu_run(struct menu *menu) {
 	struct wl_context *context = calloc(1, sizeof(struct wl_context));
@@ -466,6 +479,7 @@ int menu_run(struct menu *menu) {
 	struct pollfd fds[] = {
 		{ wl_display_get_fd(context->display), POLLIN },
 		{ context->keyboard->repeat_timer, POLLIN },
+		{ STDIN_FILENO, POLLIN }
 	};
 	const size_t nfds = sizeof(fds) / sizeof(*fds);
 
@@ -491,6 +505,10 @@ int menu_run(struct menu *menu) {
 
 		if (fds[1].revents & POLLIN) {
 			keyboard_repeat(context->keyboard);
+		}
+
+		if (fds[2].revents & POLLIN) {
+			read_items(menu);
 		}
 	}
 

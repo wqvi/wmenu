@@ -20,8 +20,8 @@ static void read_items(struct menu *menu) {
 	}
 }
 
-static void print_item(struct menu *menu, char *text, bool exit) {
-	puts(text);
+static void print_item(struct menu *menu, char *text, int i, bool exit) {
+	printf("%s\n%d\n", text, i);
 	fflush(stdout);
 	if (exit) {
 		menu->exit = true;

@@ -7,7 +7,7 @@
 #include <wayland-client.h>
 
 struct menu;
-typedef void (*menu_callback)(struct menu *menu, char *text, bool exit);
+typedef void (*menu_callback)(struct menu *menu, char *text, int i, bool exit);
 
 // A menu item.
 struct item {

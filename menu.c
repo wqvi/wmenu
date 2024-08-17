@@ -573,10 +573,16 @@ void menu_keypress(struct menu *menu, enum wl_keyboard_key_state key_state,
 	case XKB_KEY_Return:
 	case XKB_KEY_KP_Enter:
 		if (shift) {
-			menu->callback(menu, menu->input, true);
+			menu->callback(menu, menu->input, 0, true);
 		} else {
 			char *text = menu->sel ? menu->sel->text : menu->input;
-			menu->callback(menu, text, !ctrl);
+			struct item *head = menu->items;
+			int i = 0;
+			while (head != NULL && head != menu->sel) {
+				i++;
+				head = head->next;
+			}
+			menu->callback(menu, text, i, !ctrl);
 		}
 		break;
 	case XKB_KEY_Left:

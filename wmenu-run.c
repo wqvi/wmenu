@@ -54,7 +54,8 @@ static const struct xdg_activation_token_v1_listener activation_token_listener =
 	.done = activation_token_done,
 };
 
-static void exec_item(struct menu *menu, char *text, bool exit) {
+static void exec_item(struct menu *menu, char *text, int i, bool exit) {
+	(void)i;
 	struct command *cmd = calloc(1, sizeof(struct command));
 	cmd->menu = menu;
 	cmd->text = strdup(text);

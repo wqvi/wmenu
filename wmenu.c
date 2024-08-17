@@ -35,6 +35,12 @@ int main(int argc, char *argv[]) {
 		return EXIT_FAILURE;
 	}
 
+	flags = fcntl(STDOUT_FILENO, F_GETFL);
+	flags |= O_NONBLOCK;
+	if (fcntl(STDOUT_FILENO, F_SETFL, flags) < 0) {
+		return EXIT_FAILURE;
+	}
+
 	struct menu *menu = menu_create(print_item);
 	menu_getopts(menu, argc, argv);
 	menu->event_amount = 3;

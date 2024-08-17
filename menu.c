@@ -34,6 +34,7 @@ struct menu *menu_create(menu_callback callback) {
 	menu->selectionfg = 0xeeeeeeff;
 	menu->callback = callback;
 	menu->event_amount = 2;
+	menu->index = false;
 	return menu;
 }
 
@@ -88,10 +89,11 @@ static bool parse_color(const char *color, uint32_t *result) {
 void menu_getopts(struct menu *menu, int argc, char *argv[]) {
 	const char *usage =
 		"Usage: wmenu [-biPv] [-f font] [-l lines] [-o output] [-p prompt]\n"
-		"\t[-N color] [-n color] [-M color] [-m color] [-S color] [-s color]\n";
+		"\t[-N color] [-n color] [-M color] [-m color] [-S color] [-s color]\n"
+		"\t[-z]\n";
 
 	int opt;
-	while ((opt = getopt(argc, argv, "bhiPvf:l:o:p:N:n:M:m:S:s:")) != -1) {
+	while ((opt = getopt(argc, argv, "bhiPvf:l:o:p:N:n:M:m:S:s:z")) != -1) {
 		switch (opt) {
 		case 'b':
 			menu->bottom = true;
@@ -146,6 +148,9 @@ void menu_getopts(struct menu *menu, int argc, char *argv[]) {
 			if (!parse_color(optarg, &menu->selectionfg)) {
 				fprintf(stderr, "Invalid selection foreground color: %s", optarg);
 			}
+			break;
+		case 'z':
+			menu->index = true;
 			break;
 		default:
 			fprintf(stderr, "%s", usage);

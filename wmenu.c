@@ -21,7 +21,12 @@ static void read_items(struct menu *menu) {
 }
 
 static void print_item(struct menu *menu, char *text, int i, bool exit) {
-	printf("%s\n%d\n", text, i);
+	printf("%s\n", text);
+
+	if (menu->index) {
+		printf("%d\n", i);
+	}
+
 	fflush(stdout);
 	if (exit) {
 		menu->exit = true;

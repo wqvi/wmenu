@@ -77,6 +77,7 @@ struct menu {
 
 	int epollfd;
 	int event_amount;
+	bool index;
 };
 
 struct menu *menu_create(menu_callback callback);

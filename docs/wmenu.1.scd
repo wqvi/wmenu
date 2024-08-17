@@ -13,7 +13,8 @@ wmenu - dynamic menu for Wayland
   [-p _prompt_] \
   [-N _color_] [-n _color_] \
   [-M _color_] [-m _color_] \
-  [-S _color_] [-s _color_]
+  [-S _color_] [-s _color_] \
+  [-z]
 
 *wmenu-run* ...
 
@@ -72,6 +73,9 @@ $PATH and runs the result.
 
 *-s* _RRGGBB[AA]_
 	defines the selection foreground color.
+
+*-z*
+	Prints index to stdout, useful for scripting.
 
 # USAGE
 

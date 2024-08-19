@@ -291,7 +291,6 @@ static void append_match(struct item *item, struct item **first, struct item **l
 }
 
 static void match_items(struct menu *menu) {
-	struct item *current_selection = menu->sel;
 	struct item *lexact = NULL, *exactend = NULL;
 	struct item *lprefix = NULL, *prefixend = NULL;
 	struct item *lsubstr  = NULL, *substrend = NULL;
@@ -371,19 +370,45 @@ static void match_items(struct menu *menu) {
 	if (menu->pages) {
 		menu->sel = menu->pages->first;
 	}
-
-	// this is a hack to fix the selection being
-	// reset back to the start item
-	if (current_selection) {
-		menu->sel = current_selection;
-	}
 }
 
 // Render menu items.
 void menu_render_items(struct menu *menu) {
 	render_menu(menu);
 	calc_widths(menu);
+
+	// iterate through nodes to get the
+	// numerical representation of the index of
+	// the selected node.
+	int i = 0;
+	struct item *head = menu->items;
+	// make sure wmenu-run doesn't loop until
+	// the end node, which will assign head to null.
+	// after this is function is at least ran once
+	// this check will never be true.
+	if (menu->sel != NULL) {
+		while (head != NULL && head != menu->sel) {
+			i++;
+			head = head->next;
+		}
+	}
+
 	match_items(menu);
+
+	// match decides to overwrite the selected node
+	// so we once again iterate through the nodes
+	// until we find the index of the previously selected node
+	// this only works if the list isn't sorted, which
+	// wmenu never seems to actually sort the list so
+	// we're fine
+	int j = 0;
+	while (head != NULL && j < i && menu->sel->next_match) {
+		j++;
+		menu->sel = menu->sel->next_match;
+	}
+
+	size_t len = strlen(menu->input);
+
 	render_menu(menu);
 }
 

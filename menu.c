@@ -291,6 +291,7 @@ static void append_match(struct item *item, struct item **first, struct item **l
 }
 
 static void match_items(struct menu *menu) {
+	struct item *current_selection = menu->sel;
 	struct item *lexact = NULL, *exactend = NULL;
 	struct item *lprefix = NULL, *prefixend = NULL;
 	struct item *lsubstr  = NULL, *substrend = NULL;
@@ -369,6 +370,12 @@ static void match_items(struct menu *menu) {
 	page_items(menu);
 	if (menu->pages) {
 		menu->sel = menu->pages->first;
+	}
+
+	// this is a hack to fix the selection being
+	// reset back to the start item
+	if (current_selection) {
+		menu->sel = current_selection;
 	}
 }
 

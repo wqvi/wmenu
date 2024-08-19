@@ -402,7 +402,7 @@ void menu_render_items(struct menu *menu) {
 	// wmenu never seems to actually sort the list so
 	// we're fine
 	int j = 0;
-	while (head != NULL && j < i && menu->sel->next_match) {
+	while (j < i && menu->sel->next_match) {
 		j++;
 		menu->sel = menu->sel->next_match;
 	}
